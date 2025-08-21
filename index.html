@@ -6,24 +6,60 @@
   <title>מערכת הרשאות Office 365 – ייצור פקודות PowerShell</title>
   <!-- Tailwind CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {}
+      }
+    }
+  </script>
+  <!-- Google Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Noto+Sans+Hebrew:wght@400;600;700&display=swap" rel="stylesheet">
+  <!-- Local CSS -->
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-gray-100 font-sans antialiased">
+<body class="bg-slate-100 dark:bg-slate-900 antialiased">
   <div class="min-h-screen flex items-start justify-center p-6">
-    <div class="w-full max-w-3xl bg-white shadow-xl rounded-2xl p-8 space-y-6">
-      <h1 class="text-2xl font-bold text-center">⚙️ מערכת הרשאות – ייצור פקודות PowerShell</h1>
+    <div class="w-full max-w-3xl bg-white dark:bg-slate-800 shadow-xl rounded-2xl p-8 space-y-6 relative">
+      <!-- Dark Mode Toggle -->
+      <div class="absolute top-4 left-4">
+        <button id="darkModeToggle" class="p-2 rounded-full bg-slate-200 dark:bg-slate-700 text-slate-800 dark:text-slate-200">
+          <svg id="moonIcon" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+          <svg id="sunIcon" class="h-6 w-6 hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707.707M6.343 6.343l-.707-.707m12.728 0l-.707-.707M6.343 17.657l-.707.707M12 5a7 7 0 100 14 7 7 0 000-14z"></path></svg>
+        </button>
+      </div>
+
+      <h1 class="text-2xl font-bold text-center text-slate-800 dark:text-slate-200">⚙️ ניהול הרשאות יומן ב-PowerShell</h1>
+
+      <!-- Action Toggle -->
+      <div class="flex justify-center items-center space-x-4 space-x-reverse">
+        <span class="font-semibold text-slate-700 dark:text-slate-300">הסר הרשאה</span>
+        <label for="actionToggle" class="flex items-center cursor-pointer">
+          <div class="relative">
+            <input type="checkbox" id="actionToggle" class="sr-only" checked>
+            <div class="block bg-slate-200 dark:bg-slate-600 w-14 h-8 rounded-full"></div>
+            <div id="actionToggleDot" class="dot absolute left-1 top-1 bg-sky-600 w-6 h-6 rounded-full transition-transform"></div>
+          </div>
+        </label>
+        <span class="font-semibold text-slate-700 dark:text-slate-300">הוסף הרשאה</span>
+      </div>
 
       <!-- Calendar delegation section -->
       <section class="space-y-3">
-        <h2 class="text-xl font-semibold">1️⃣ הגדרת הרשאות יומן</h2>
+        <h2 id="formSectionTitle" class="text-xl font-semibold text-slate-700 dark:text-slate-300">1️⃣ הגדרת הרשאות להוספה</h2>
         <div class="grid md:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium">UPN של מקבל ההרשאה (Delegate)</label>
+            <label class="block text-sm font-medium text-slate-600 dark:text-slate-400" for="delegateUpn">UPN של מקבל ההרשאה (Delegate)</label>
             <input id="delegateUpn" type="email" placeholder="a@a.com"
-                   class="w-full rounded-xl border-gray-300 p-2 focus:border-indigo-500 focus:ring-indigo-500">
+                   class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 p-2 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500">
+            <span id="delegateUpnError" class="text-sm text-red-500 hidden">שדה זה חובה.</span>
           </div>
           <div>
-            <label class="block text-sm font-medium">רמת הרשאה</label>
-            <select id="accessRight" class="w-full rounded-xl border-gray-300 p-2 focus:border-indigo-500 focus:ring-indigo-500">
+            <label class="block text-sm font-medium text-slate-600 dark:text-slate-400" for="accessRight">רמת הרשאה</label>
+            <select id="accessRight" class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 p-2 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500">
               <option value="Reviewer">Reviewer (קריאה בלבד)</option>
               <option value="Editor" selected>Editor (קריאה/כתיבה)</option>
               <option value="Owner">Owner (בעלות מלאה)</option>
@@ -31,99 +67,31 @@
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium">UPN של בעל היומן – אחד בכל שורה / מופרד בפסיק</label>
+          <label class="block text-sm font-medium text-slate-600 dark:text-slate-400" for="owners">UPN של בעל היומן – אחד בכל שורה / מופרד בפסיק</label>
           <textarea id="owners" rows="4" placeholder="AA@a.com, AB@a.com"
-                    class="w-full rounded-xl border-gray-300 p-2 focus:border-indigo-500 focus:ring-indigo-500"></textarea>
+                    class="w-full rounded-xl border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 text-slate-900 dark:text-slate-200 p-2 transition-colors duration-300 ease-in-out focus:outline-none focus:ring-1 focus:ring-sky-500 focus:border-sky-500"></textarea>
+          <span id="ownersError" class="text-sm text-red-500 hidden">שדה זה חובה.</span>
         </div>
         <label class="inline-flex items-center space-x-reverse space-x-2">
-          <input id="errAction" type="checkbox" class="rounded text-indigo-600 h-4 w-4">
-          <span class="text-sm">הוסף ‎-ErrorAction SilentlyContinue (מונע שגיאה אם הרשאה קיימת)</span>
+          <input id="errAction" type="checkbox" class="rounded text-sky-600 h-4 w-4 focus:ring-1 focus:ring-sky-500 focus:ring-offset-0">
+          <span class="text-sm text-slate-600 dark:text-slate-400">הוסף ‎-ErrorAction SilentlyContinue (מונע שגיאה אם הרשאה קיימת)</span>
         </label>
       </section>
 
       <!-- Generate button -->
-      <button id="generate" class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-xl shadow-lg transition">🚀 צור פקודות PowerShell</button>
+      <button id="generate" class="w-full bg-sky-600 hover:bg-sky-700 text-white font-semibold py-2 rounded-xl shadow-lg transition transform hover:scale-[1.01] hover:shadow-md disabled:bg-slate-400 dark:disabled:bg-slate-600 disabled:cursor-not-allowed">🚀 צור פקודות PowerShell</button>
 
       <!-- Output -->
-      <section class="space-y-2">
-        <h2 class="text-xl font-semibold">📋 הפקודות שלך</h2>
-        <textarea id="output" rows="14" readonly class="w-full font-mono text-xs rounded-xl border-gray-300 p-2 bg-gray-50"></textarea>
-        <button id="copy" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-1 px-4 rounded-xl transition">העתק ללוח</button>
-        <span id="copyMsg" class="text-sm"></span>
+      <section id="outputSection" class="space-y-2 hidden">
+        <h2 class="text-xl font-semibold text-slate-700 dark:text-slate-300">📋 הפקודות שלך</h2>
+        <textarea id="output" readonly class="w-full font-mono text-xs rounded-xl border-slate-300 dark:border-slate-600 p-2 bg-slate-50 dark:bg-slate-700 text-slate-900 dark:text-slate-200 transition-colors duration-300 ease-in-out"></textarea>
+        <button id="copy" class="bg-slate-600 hover:bg-slate-700 dark:bg-slate-500 dark:hover:bg-slate-600 text-white font-semibold py-1 px-4 rounded-xl transition transform hover:scale-[1.01] hover:shadow-sm">העתק ללוח</button>
+        <span id="copyMsg" class="text-sm text-green-600 dark:text-green-500"></span>
       </section>
     </div>
   </div>
 
   <!-- Logic -->
-  <script>
-    const btnGenerate = document.getElementById('generate');
-    const btnCopy     = document.getElementById('copy');
-    const copyMsg     = document.getElementById('copyMsg');
-
-    btnGenerate.addEventListener('click', () => {
-      const delegate   = document.getElementById('delegateUpn').value.trim();
-      const ownersRaw  = document.getElementById('owners').value.trim();
-      const right      = document.getElementById('accessRight').value;
-      const includeErr = document.getElementById('errAction').checked;
-
-      if (!delegate || !ownersRaw) {
-        alert('אנא מלא את כל השדות הנדרשים.');
-        return;
-      }
-
-      // Parse owners by commas/newlines/semicolons
-      const owners = ownersRaw.split(/[\n,;]+/).map(o => o.trim()).filter(Boolean);
-      if (!owners.length) {
-        alert('חייב להיות לפחות Owner אחד.');
-        return;
-      }
-
-      const errFlag = includeErr ? '-ErrorAction SilentlyContinue' : '-ErrorAction Stop';
-
-      let script = `# ===== Generated by Delegation Helper =====\n`;
-      script    += `Connect-ExchangeOnline\n\n`;
-      script    += `$delegate = \"${delegate}\"\n`;
-      script    += `$owners   = @(${owners.map(o => `\"${o}\"`).join(', ')})\n`;
-      script    += `$right    = \"${right}\"\n\n`;
-      script    += `foreach ($o in $owners) {\n`;
-      script    += `    $cal = (Get-MailboxFolderStatistics $o | Where-Object { $_.FolderType -eq 'Calendar' } | Select-Object -First 1 -ExpandProperty FolderPath)\n`;
-      script    += `    if (-not $cal) {\n`;
-      script    += `        # נסיון חוזר בעברית\n`;
-      script    += `        $cal = (Get-MailboxFolderStatistics $o | Where-Object { $_.Name -eq 'יומן' } | Select-Object -First 1 -ExpandProperty FolderPath)\n`;
-      script    += `    }\n`;
-      script    += `    if (-not $cal) { Write-Warning \"$o – תיקיית יומן לא נמצאה\"; continue }\n`;
-      script    += `    $id = \"$o\`:$cal\"\n`;
-      script    += `    Try {\n`;
-      script    += `        Add-MailboxFolderPermission -Identity $id -User $delegate -AccessRights $right ${errFlag}\n`;
-      script    += `        Write-Host \"✓ Added $delegate to $id\"\n`;
-      script    += `    } Catch [Microsoft.M365.Commands.Management.MailboxFolder.MailboxFolderPermissionExistsException] {\n`;
-      script    += `        Write-Host \"↻ Permission already exists for $delegate on $id\"\n`;
-      script    += `    }\n`;
-      script    += `}\n\n`;
-      script    += `Write-Host \"--- Existing permissions for $delegate ---\"\n`;
-      script    += `foreach ($o in $owners) {\n`;
-      script    += `    $cal = (Get-MailboxFolderStatistics $o | Where-Object { $_.FolderType -eq 'Calendar' } | Select-Object -First 1 -ExpandProperty FolderPath)\n`;
-      script    += `    if (-not $cal) {\n`;
-      script    += `        $cal = (Get-MailboxFolderStatistics $o | Where-Object { $_.Name -eq 'יומן' } | Select-Object -First 1 -ExpandProperty FolderPath)\n`;
-      script    += `    }\n`;
-      script    += `    if ($cal) { Get-MailboxFolderPermission \"$o\`:$cal\" | Where-Object { $_.User -eq $delegate } | Format-Table FolderName,User,AccessRights }\n`;
-      script    += `}\n`;
-      script    += `# =========================================`;
-
-      document.getElementById('output').value = script;
-    });
-
-    btnCopy.addEventListener('click', async () => {
-      const text = document.getElementById('output').value;
-      if (!text) return;
-      try {
-        await navigator.clipboard.writeText(text);
-        copyMsg.textContent = '✅ הועתק!';
-        setTimeout(()=> copyMsg.textContent='', 3000);
-      } catch (err) {
-        copyMsg.textContent = '❌ לא הצליח להעתיק';
-      }
-    });
-  </script>
+  <script src="script.js" defer></script>
 </body>
 </html>

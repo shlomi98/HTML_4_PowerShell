@@ -1,0 +1,13 @@
+body {
+  font-family: 'Inter', 'Noto Sans Hebrew', sans-serif;
+}
+
+/* Toggle Switch */
+#actionToggle:checked + #actionToggleDot {
+  transform: translateX(1.5rem);
+  background-color: #3b82f6; /* sky-600 for add */
+}
+
+#actionToggle + #actionToggleDot {
+    background-color: #ef4444; /* red-500 for remove */
+}
